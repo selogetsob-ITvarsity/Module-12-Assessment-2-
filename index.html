@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Phone Book</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/custom.css">
+        <link rel="stylesheet" href="fonts/css/all.css">
+    </head>
+    <body onload="fetchContacts()">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark text-center">
+            <h1 class="mx-auto text-white">Contact Book</h1>
+        </nav>
+        
+        <div class="container py-2">
+        
+            <button class="btn btn-warning btn-lg mx-auto" data-bs-toggle="modal" data-bs-target="#AddContactBtn"><i class="fas fa-user-plus"></i></button>
+            <button class="btn btn-warning btn-lg mx-auto" id="refresh" type="button"><i class="fas fa-redo"></i></button>
+        </div>    
+        
+        <!------------------------------------------------------ Modal Add Contact ----------------------------------------------------------------------->
+        <div class="modal fade" id="AddContactBtn" tabindex="-1" aria-labelledby="enrollLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="enrollLabel">Add Contact <i class="far fa-address-card"></i></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p  class="lead">Fill out the details</p>
+                  <form id="editForm">
+                      <div class="mb-3">
+                         <label class="col-form-label" for="firstname">First name</label>
+                        <input class="form-control" type="text" name="firstname" id="firstname">
+                      </div>
+                      
+                      <div class="mb-3">
+                          <label for="lastname">Last name</label>
+                            <input class="form-control" type="text" name="lastname" id="lastname"><br/>
+                      </div>
+                      
+                      <div class="mb-3">
+                          <label for="email">Email</label>
+                            <input  class="form-control" type="text" name="email" id="email"><br/>
+                      </div>
+                      
+                      <div class="mb-3">
+                        <label for="mobile">Mobile</label>
+                        <input class="form-control" type="text" name="mobile" id="mobile"><br/>
+                      </div>
+                      
+                      
+                      <div class="mb-3">
+                          <label for="avatar"><i class="far fa-file-image"></i></label>
+                          <input class="form-control" type="file" name="avatar" id="avatar"><br/>
+                      </div>
+                                    
+                  </form>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button class="btn btn-warning" type="submit" id="submitFormAdd"><i class="fas fa-check"></i></button>
+                  
+              </div>
+                
+            </div>
+          </div>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+    <!---------------------------------------------------------------------------------------------------------------------->    
+        
+        <div id="table">Contact loading...</div>
+        
+        <div  id="to-top">
+            <a href="#" class="position-absolute sticky-bottom bottom-0 end-0 p-1">
+                    <i class="far fa-arrow-alt-circle-up h1"></i>
+                </a>
+        
+        </div>
+        <!-------------------------------------  Javascript ----------------------------------------------------------->
+        
+        <script src="config.js"></script>
+        <script>
+            document.getElementById("refresh").addEventListener('click', fetchContacts);
+            document.getElementById("addContact").addEventListener('click', addContact);
+            
+            function fetchContacts()
+            {
+                fetch(rootPath + "controller/get-contacts/")
+                .then(function(response){
+                    return response.json();
+                })
+                .then(function(data){
+                   displayOutput(data);
+                    
+                })
+            
+            }
+                
+                function displayOutput(data)
+                {
+                    
+                    output =`<section id="trivia" class="p-5">
+                                                                                                                
+                <div class="container text-center">`;
+                    
+                    for (a in data)
+                        {
+                           
+                            output += ` 
+
+                   <div class="accordion-item text-center">
+                        <h2 class="accordion-header" id="flush-${data[a].id}">
+                          <button class="accordion-button collapsed " 
+                                  type="button" 
+                                  data-bs-toggle="collapse" 
+                                  data-bs-target="#id-${data[a].id}">
+                            <img src="${rootPath}/controller/uploads/${data[a].avatar}" class="img-thumbnail rounded-circle"  width="100px"/>
+                            <h5>${data[a].firstname}</h5>
+                          </button>
+                        </h2>
+                        <div id="id-${data[a].id}" 
+                             class="accordion-collapse collapse"
+                             data-bs-parent="#trivia">
+                            <div class="accordion-body"><h5><span class="text-muted">First Name: </span>${data[a].firstname}</h5>
+                                <h5><span class="text-muted">Second Name: </span>${data[a].lastname}</h5>
+                                <h5><span class="text-muted">Email: </span>${data[a].email}</h5>
+                                <h5><span class="text-muted">Phone: </span>${data[a].mobile}</h5>
+                                <button onclick="editContact(${data[a].id})" id="btnId-${data[a].id}" class="btn btn-warning btn-lg" data-bs-toggle="modal" data-bs-target="#EditContactBtn"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="deleteContact(${data[a].id})" id="btnId-${data[a].id}" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#EditContactBtn"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                      </div>
+        
+            
+                                    `;
+                        }
+                        
+                       output +=`  </div>
+            </section>`;
+                    document.getElementById("table").innerHTML = output;
+                }
+            
+            function addContact()
+            {
+                window.open("edit-contact.html","_self");
+            }
+            
+            
+            function editContact(id)
+            {
+                window.open("edit-contact.html?id=" + id, "_self");
+            }
+            
+            function deleteContact(id)
+            {
+                var confirmDelete = confirm("Delete contact. Are you sure?");
+                
+                if(confirmDelete == true){
+                    fetch(rootPath + 'controller/delete-contact/?id=' + id)
+                    .then(function(response){
+                        return response.text();
+                    })
+                    .then(function(data){
+                        if(data == "1"){
+                            fetchContacts();
+                        }else {
+                            alert(data);
+                        }
+                    })
+                }
+            }
+            /***************************************************************************************************************************/
+            
+            
+        </script>
+        <script src="js/jquery-3.4.1.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+     
+    </body>
+</html>
